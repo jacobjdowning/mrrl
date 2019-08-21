@@ -27,10 +27,13 @@ interface State {
 }
 
 const App: React.FC<RouteComponentProps> = ({location}) => {
-  
+
+  const delimiter = ','
+
   const getWantedItemsFromHash = () => {
+    const hashList = location.hash.substring(1).split(delimiter);
     return getOrderedMaterialsIds().map((itemId, i) =>{
-      const quantity = i+1 < location.hash.length ? +location.hash.charAt(i+1) : 0;
+      const quantity = i < hashList.length ? +hashList[i] : 0;
       return {
         itemId: itemId,
         quantity: quantity
@@ -42,9 +45,9 @@ const App: React.FC<RouteComponentProps> = ({location}) => {
     return getOrderedMaterialsIds().reduce((acc:string, itemId:number) => {
       const item = wantedItems.find(item => item.itemId == itemId)
       if (item !== undefined){
-        return acc.concat(item.quantity.toString());
+        return acc.concat(item.quantity.toString() + delimiter);
       }else{
-        return acc.concat('0');
+        return acc.concat('0' + delimiter);
       }
     }, '');
   };

@@ -20,7 +20,11 @@ const ShareLink: React.FC<Props> = ({ hash }) => {
         }
     };
 
-    if(+hash == 0){  // Hide if no route to share
+    const isHashEmpty = (hash:string) =>{
+        return hash.split(',').find((element) => { return element != '0' && element != ''}) == undefined;
+    }
+
+    if(isHashEmpty(hash)){  // Hide if no route to share
         return <span />
     }
 
