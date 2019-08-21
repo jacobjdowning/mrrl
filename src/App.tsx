@@ -1,17 +1,20 @@
-import React, { useState, ChangeEvent } from "react";
+import React, { useState, useEffect, ChangeEvent, ReactComponentElement } from "react";
 import "./App.scss";
 import "./simple-grid.css";
+import {RouteComponentProps} from "react-router-dom";
 
 import WantedItems from "./components/WantedItems";
 import { findRoute, RouteStep } from "./utils";
 import Suggestions from "./components/Suggestions";
 import Result from "./components/Result";
+import ShareLink from "./components/ShareLink";
 import {
   CostType,
   getItem,
   calculateRequiredMats,
   WantedItem,
-  Materials
+  Materials,
+  getOrderedMaterialsIds
 } from "./data";
 
 interface State {
@@ -23,15 +26,41 @@ interface State {
   selectedItems: { [itemId: number]: any };
 }
 
-const App: React.FC = () => {
+const App: React.FC<RouteComponentProps> = ({location}) => {
+  
+  const getWantedItemsFromHash = () => {
+    return getOrderedMaterialsIds().map((itemId, i) =>{
+      const quantity = i+1 < location.hash.length ? +location.hash.charAt(i+1) : 0;
+      return {
+        itemId: itemId,
+        quantity: quantity
+      };
+    }).filter(item => item.quantity > 0);
+  };
+
+  const getHashFromWantedItems = (wantedItems: WantedItem[]) => {
+    return getOrderedMaterialsIds().reduce((acc:string, itemId:number) => {
+      const item = wantedItems.find(item => item.itemId == itemId)
+      if (item !== undefined){
+        return acc.concat(item.toString());
+      }else{
+        return acc.concat('0');
+      }
+    }, '');
+  };
+
   const [state, setState] = useState<State>({
-    wantedItems: [],
+    wantedItems: getWantedItemsFromHash(),
     route: [],
     requiredMats: { items: [], gold: 0 },
     includeSecretShop: true,
     includeVendorPictures: true,
     selectedItems: {}
   });
+
+  useEffect(() => {
+    calculateNewState(getWantedItemsFromHash());
+  }, [location]);
 
   const onQuantityChange = (itemId: number, quantity: number) => {
     const newWantedItems = state.wantedItems.filter(wi => wi.itemId !== itemId);
@@ -164,6 +193,7 @@ const App: React.FC = () => {
         requiredMats={state.requiredMats}
         includeVendorPictures={state.includeVendorPictures}
       />
+      <ShareLink hash={getHashFromWantedItems(state.wantedItems)}/>
     </div>
   );
 };

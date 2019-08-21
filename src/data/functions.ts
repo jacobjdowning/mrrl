@@ -49,6 +49,14 @@ export function getMaterialsInput(): Item[] {
     });
 }
 
+export function getOrderedMaterialsIds(): number[] {
+  return items.filter(
+    i => !i.mrrl && (i.rarity === Rarity.Rare || i.rarity === Rarity.Epic)
+  )
+  .map(item => item.itemId)
+  .sort();
+}
+
 export function getVendorItems(vendor: Vendor): Item[] {
   return vendor.inventory.map(itemId => itemsById[itemId]);
 }
