@@ -42,7 +42,7 @@ const App: React.FC<RouteComponentProps> = ({location}) => {
     return getOrderedMaterialsIds().reduce((acc:string, itemId:number) => {
       const item = wantedItems.find(item => item.itemId == itemId)
       if (item !== undefined){
-        return acc.concat(item.toString());
+        return acc.concat(item.quantity.toString());
       }else{
         return acc.concat('0');
       }
